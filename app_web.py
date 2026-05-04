@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import openpyxl
 import sqlite3
 import datetime
+import os
 
 
 # USUARIO = "admin"
@@ -346,4 +347,7 @@ def logout():
 
 
 #app.run(debug=True)
-app.run(host="0.0.0.0", port=5001, debug=True)
+#app.run(host="0.0.0.0", port=5001, debug=True)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
