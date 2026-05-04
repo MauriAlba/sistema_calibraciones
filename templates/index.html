@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de Calibraciones</title>
+</head>
+<body>
+
+    <a href="/logout">
+        <button>🚪 Cerrar sesión</button>
+    </a>
+
+    <p>👤 Usuario: {{ session.usuario }}</p>
+
+<h1>🔧 Sistema de Calibraciones</h1>
+
+<h2>Agregar calibración</h2>
+<form method="POST" action="/agregar">
+    <input type="text" name="instrumento" placeholder="Instrumento" required>
+    <input type="text" name="tipo" placeholder="Tipo" required>
+    <input type="number" name="frecuencia" placeholder="Frecuencia (días)" required>
+    <button type="submit">Guardar</button>
+</form>
+
+<h2>Historial</h2>
+
+<table border="1">
+<tr>
+    <th>Instrumento</th>
+    <th>Tipo</th>
+    <th>Última</th>
+    <th>Próxima</th>
+    <th>Estado</th>
+</tr>
+
+{% for d in datos %}
+<tr style="
+    {% if d.estado == 'vencido' %}
+        background-color: #ffcccc;
+    {% elif d.estado == 'proximo' %}
+        background-color: #fff3cd;
+    {% endif %}
+">
+    <td>{{ d.instrumento }}</td>
+    <td>{{ d.tipo }}</td>
+    <td>{{ d.fecha }}</td>
+    <td>{{ d.proxima }}</td>
+    <td>
+        {% if d.estado == 'vencido' %}
+            🔴 VENCIDO
+        {% elif d.estado == 'proximo' %}
+            🟡 PRÓXIMO
+        {% else %}
+            ✅ OK
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+
+</table>
+
+<a href="/exportar">
+    <button>📊 Descargar Excel</button>
+</a>
+
+</body>
+</html>
