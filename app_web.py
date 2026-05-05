@@ -71,6 +71,32 @@ def crear_usuario_inicial():
 crear_base()
 crear_usuario_inicial()
 
+# Función para parsear fechas con diferentes formatos
+def parse_fecha(fecha_str):
+    for formato in ("%Y-%m-%d", "%Y_%m_%d"):
+        try:
+            return datetime.datetime.strptime(fecha_str, formato).date()
+        except ValueError:
+            continue
+    return None
+
+# Limpiar formato de fechas antiguas
+conexion = sqlite3.connect("calibraciones_4.db")
+cursor = conexion.cursor()
+
+cursor.execute("SELECT id, fecha FROM calibraciones_4")
+datos = cursor.fetchall()
+
+for id, fecha in datos:
+    fecha_limpia = fecha.replace("_", "-")
+    cursor.execute(
+        "UPDATE calibraciones_4 SET fecha=? WHERE id=?",
+        (fecha_limpia, id)
+    )
+
+conexion.commit()
+conexion.close()
+
 
 # RUTAS
 
@@ -124,16 +150,51 @@ def crear_usuario():
 
 
 # Ruta para eliminar usuario
+# @app.route("/eliminar_usuario/<int:id>")
+# def eliminar_usuario(id):
+#     if session.get("rol") != "admin":
+#         return "⛔ Sin permisos"
+    
+    
+
+#     conexion = sqlite3.connect("calibraciones_4.db")
+#     cursor = conexion.cursor()
+
+    
+
+#     cursor.execute("DELETE FROM usuarios WHERE id=?", (id,))
+#     conexion.commit()
+#     conexion.close()
+
+#     return redirect("/admin")
+
 @app.route("/eliminar_usuario/<int:id>")
 def eliminar_usuario(id):
+    if not session.get("logueado"):
+        return redirect("/login")
+
     if session.get("rol") != "admin":
         return "⛔ Sin permisos"
 
     conexion = sqlite3.connect("calibraciones_4.db")
     cursor = conexion.cursor()
 
-    cursor.execute("DELETE FROM usuarios WHERE id=?", (id,))
-    conexion.commit()
+    # 🔍 Buscar usuario a eliminar
+    cursor.execute("SELECT usuario FROM usuarios WHERE id=?", (id,))
+    resultado = cursor.fetchone()
+
+    if resultado:
+        usuario_a_eliminar = resultado[0]
+
+        # 🚫 Evitar eliminarse a sí mismo
+        if session.get("usuario") == usuario_a_eliminar:
+            conexion.close()
+            return "⛔ No podés eliminar tu propio usuario"
+
+        # ✅ Eliminar
+        cursor.execute("DELETE FROM usuarios WHERE id=?", (id,))
+        conexion.commit()
+
     conexion.close()
 
     return redirect("/admin")
@@ -157,7 +218,12 @@ def index():
     hoy = datetime.date.today()
 
     for instrumento, tipo, fecha, frecuencia in datos_db:
-        fecha_cal = datetime.datetime.strptime(fecha, "%Y-%m-%d").date()
+        # fecha_cal = datetime.datetime.strptime(fecha, "%Y-%m-%d").date()
+        fecha_cal = parse_fecha(fecha)
+
+        if not fecha_cal:
+            continue  # salta registros rotos
+
         proxima = fecha_cal + datetime.timedelta(days=frecuencia)
 
         dias_restantes = (proxima - hoy).days
@@ -180,6 +246,47 @@ def index():
 
     return render_template("index.html", datos=datos)
 
+# Ruta para dashboard con estadísticas
+@app.route("/dashboard")
+def dashboard():
+    if not session.get("logueado"):
+        return redirect("/login")
+
+    conexion = sqlite3.connect("calibraciones_4.db")
+    cursor = conexion.cursor()
+
+    cursor.execute("SELECT fecha, frecuencia FROM calibraciones")
+    datos_db = cursor.fetchall()
+
+    conexion.close()
+
+    hoy = datetime.date.today()
+
+    vencidos = 0
+    proximos = 0
+    ok = 0
+
+    for fecha, frecuencia in datos_db:
+        # fecha_cal = datetime.datetime.strptime(fecha, "%Y_%m_%d").date()
+        fecha_cal = parse_fecha(fecha)
+
+        if not fecha_cal:
+            continue  # evita que rompa todo
+
+        proxima = fecha_cal + datetime.timedelta(days=frecuencia)
+
+        if hoy >= proxima:
+            vencidos += 1
+        elif (proxima - hoy).days <= 7:
+            proximos += 1
+        else:
+            ok += 1
+
+    return render_template("dashboard.html",
+                           vencidos=vencidos,
+                           proximos=proximos,
+                           ok=ok)
+
 # Ruta para agregar nueva calibración
 @app.route("/agregar", methods=["POST"])
 def agregar():
@@ -191,7 +298,8 @@ def agregar():
     tipo = request.form["tipo"]
     frecuencia = int(request.form["frecuencia"])
 
-    fecha = datetime.date.today()
+    # fecha = datetime.date.today()
+    fecha = datetime.date.today().strftime("%Y-%m-%d")
 
     conexion = sqlite3.connect("calibraciones_4.db")
     cursor = conexion.cursor()
@@ -246,7 +354,11 @@ def exportar():
 
     
     for instrumento, tipo, fecha, frecuencia in datos_db:
-        fecha_cal = datetime.datetime.strptime(fecha, "%Y-%m-%d").date()
+        # fecha_cal = datetime.datetime.strptime(fecha, "%Y-%m-%d").date()
+        fecha_cal = parse_fecha(fecha)
+
+        if not fecha_cal:
+            continue  # salta registros rotos
         proxima = fecha_cal + datetime.timedelta(days=frecuencia)
 
         if hoy >= proxima:
@@ -291,22 +403,6 @@ def login():
 
         conexion = sqlite3.connect("calibraciones_4.db")
         cursor = conexion.cursor()
-
-        # cursor.execute(
-        #     "SELECT password FROM usuarios WHERE usuario=?",
-        #     (user,)
-        # )
-
-        # resultado = cursor.fetchone()
-        # conexion.close()
-
-        # if resultado:
-        #     password_hash = resultado[0]
-
-        #     if check_password_hash(password_hash, password):
-        #         session["logueado"] = True
-        #         session["usuario"] = user
-        #         return redirect("/")
         
         cursor.execute(
             "SELECT password, rol FROM usuarios WHERE usuario=?",
@@ -326,7 +422,8 @@ def login():
         
         return "❌ Usuario o contraseña incorrectos"
 
-    return render_template("login.html")
+    # return render_template("login.html")
+    return render_template("login.html", error="Usuario o contraseña incorrectos")
 
 # Ruta para logout
 @app.route("/logout")

@@ -2,71 +2,155 @@
 <html>
 <head>
     <title>Registro de Calibraciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+    <div class="container mt-4">
+        <!-- <a href="/logout">
+            <button>🚪 Cerrar sesión</button>
+        </a>
 
-    <a href="/logout">
-        <button>🚪 Cerrar sesión</button>
-    </a>
-
-    {% if session.rol == "admin" %}
-    <a href="/admin">
-        <button>⚙️ Panel Admin</button>
-    </a>
-    {% endif %}
-
-    <p>👤 Usuario: {{ session.usuario }} | Rol: {{ session.rol }}</p>
-
-<h1>🔧 Registro de Calibraciones</h1>
-
-<h2>Agregar calibración</h2>
-<form method="POST" action="/agregar">
-    <input type="text" name="instrumento" placeholder="Instrumento" required>
-    <input type="text" name="tipo" placeholder="Tipo" required>
-    <input type="number" name="frecuencia" placeholder="Frecuencia (días)" required>
-    <button type="submit">Guardar</button>
-</form>
-
-<h2>Historial</h2>
-
-<table border="1">
-<tr>
-    <th>Instrumento</th>
-    <th>Tipo</th>
-    <th>Última</th>
-    <th>Próxima</th>
-    <th>Estado</th>
-</tr>
-
-{% for d in datos %}
-<tr style="
-    {% if d.estado == 'vencido' %}
-        background-color: #ffcccc;
-    {% elif d.estado == 'proximo' %}
-        background-color: #fff3cd;
-    {% endif %}
-">
-    <td>{{ d.instrumento }}</td>
-    <td>{{ d.tipo }}</td>
-    <td>{{ d.fecha }}</td>
-    <td>{{ d.proxima }}</td>
-    <td>
-        {% if d.estado == 'vencido' %}
-            🔴 VENCIDO
-        {% elif d.estado == 'proximo' %}
-            🟡 PRÓXIMO
-        {% else %}
-            ✅ OK
+        {% if session.rol == "admin" %}
+        <a href="/admin">
+            <button>⚙️ Panel Admin</button>
+        </a>
         {% endif %}
-    </td>
-</tr>
-{% endfor %}
 
-</table>
+        <p>👤 Usuario: {{ session.usuario }} | Rol: {{ session.rol }}</p>
 
-<a href="/exportar">
-    <button>📊 Descargar Excel</button>
-</a>
+        <h1>🔧 Registro de Calibraciones</h1> -->
 
+        <h1 class="mb-4">🔧 Registro de Calibraciones</h1>
+
+        <div class="d-flex justify-content-between mb-3">
+            <div>
+                <strong>👤 {{ session.usuario }}</strong> ({{ session.rol }})
+            </div>
+            <div>
+                <a href="/logout" class="btn btn-danger btn-sm">Cerrar sesión</a>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            {% if session.rol == "admin" %}
+            <a href="/admin" class="btn btn-secondary">⚙️ Admin</a>
+            <a href="/exportar" class="btn btn-success">📊 Excel</a>
+            <a href="/dashboard" class="btn btn-info">📊 Dashboard</a>
+            {% endif %}
+        </div>
+
+
+
+        <!-- <h2>Agregar calibración</h2>
+        <form method="POST" action="/agregar">
+            <input type="text" name="instrumento" placeholder="Instrumento" required>
+            <input type="text" name="tipo" placeholder="Tipo" required>
+            <input type="number" name="frecuencia" placeholder="Frecuencia (días)" required>
+            <button type="submit">Guardar</button>
+        </form> -->
+
+        <h4>Agregar calibración</h4>
+
+        <form method="POST" action="/agregar" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <input type="text" name="instrumento" class="form-control" placeholder="Instrumento" required>
+            </div>
+
+            <div class="col-md-3">
+                <input type="text" name="tipo" class="form-control" placeholder="Tipo" required>
+            </div>
+
+            <div class="col-md-3">
+                <input type="number" name="frecuencia" class="form-control" placeholder="Frecuencia (días)" required>
+            </div>
+
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Guardar</button>
+            </div>
+        </form>
+
+        <h2>Historial</h2>
+
+        <!-- <table border="1">
+            <tr>
+                <th>Instrumento</th>
+                <th>Tipo</th>
+                <th>Última</th>
+                <th>Próxima</th>
+                <th>Estado</th>
+            </tr>
+
+            {% for d in datos %}
+            <tr style="
+                {% if d.estado == 'vencido' %}
+                    background-color: #ffcccc;
+                {% elif d.estado == 'proximo' %}
+                    background-color: #fff3cd;
+                {% endif %}
+            ">
+                <td>{{ d.instrumento }}</td>
+                <td>{{ d.tipo }}</td>
+                <td>{{ d.fecha }}</td>
+                <td>{{ d.proxima }}</td>
+                <td>
+                    {% if d.estado == 'vencido' %}
+                        🔴 VENCIDO
+                    {% elif d.estado == 'proximo' %}
+                        🟡 PRÓXIMO
+                    {% else %}
+                        ✅ OK
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+
+        </table> -->
+
+        <!-- <table class="table table-bordered table-striped"> -->
+        <table class="table table-bordered table-striped text-center">        
+            <thead class="table-dark">
+            <tr>
+                <th>Instrumento</th>
+                <th>Tipo</th>
+                <th>Última</th>
+                <th>Próxima</th>
+                <th>Estado</th>
+            </tr>
+            </thead>
+
+            <tbody>
+                {% for d in datos %}
+                <tr class="
+                {% if d.estado == 'vencido' %}
+                table-danger
+                {% elif d.estado == 'proximo' %}
+                table-warning
+                {% else %}
+                table-success
+                {% endif %}
+                ">
+                    <td>{{ d.instrumento }}</td>
+                    <td>{{ d.tipo }}</td>
+                    <td>{{ d.fecha }}</td>
+                    <td>{{ d.proxima }}</td>
+                    <td>
+                        {% if d.estado == 'vencido' %}
+                            🔴 Vencido
+                        {% elif d.estado == 'proximo' %}
+                            🟡 Próximo
+                        {% else %}
+                            ✅ OK
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+            </table>
+
+        <a href="/exportar">
+            <button>📊 Descargar Excel</button>
+        </a>
+    </div>
 </body>
 </html>
