@@ -283,6 +283,7 @@ def exportar():
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
         for cell in row:
             cell.alignment = Alignment(horizontal="center")
+            
     archivo = "reporte_calibraciones.xlsx"
     wb.save(archivo)
 
@@ -354,4 +355,14 @@ def logout():
 #app.run(host="0.0.0.0", port=5001, debug=True)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    import traceback
+
+    try:
+        port = int(os.environ.get("PORT", 5000))
+        app.run(host="0.0.0.0", port=port)
+    except Exception as e:
+        print("ERROR AL INICIAR:")
+        traceback.print_exc()
+
+# if __name__ == "__main__":
+#     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
