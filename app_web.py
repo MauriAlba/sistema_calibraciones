@@ -275,14 +275,18 @@ def exportar():
     for col in columnas:
         ws.column_dimensions[col].width = 20
 
-        archivo = "reporte_calibraciones.xlsx"
-        wb.save(archivo)
+        # archivo = "reporte_calibraciones.xlsx"
+        # wb.save(archivo)
 
-        return send_file(archivo, as_attachment=True)
+        # return send_file(archivo, as_attachment=True)
     
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
         for cell in row:
             cell.alignment = Alignment(horizontal="center")
+    archivo = "reporte_calibraciones.xlsx"
+    wb.save(archivo)
+
+    return send_file(archivo, as_attachment=True)
 
 
 # @app.route("/login", methods=["GET", "POST"])
