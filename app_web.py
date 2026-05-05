@@ -83,7 +83,15 @@ def admin():
     if session.get("rol") != "admin":
         return "⛔ Acceso solo para administradores"
 
-    return render_template("admin.html")
+    conexion = sqlite3.connect("calibraciones_4.db")
+    cursor = conexion.cursor()
+
+    cursor.execute("SELECT id, usuario, rol FROM usuarios")
+    usuarios = cursor.fetchall()
+
+    conexion.close()
+
+    return render_template("admin.html", usuarios=usuarios)
 
 # Ruta para crear nuevo usuario
 @app.route("/crear_usuario", methods=["POST"])
@@ -110,6 +118,22 @@ def crear_usuario():
     except:
         return "⚠️ Usuario ya existe"
 
+    conexion.close()
+
+    return redirect("/admin")
+
+
+# Ruta para eliminar usuario
+@app.route("/eliminar_usuario/<int:id>")
+def eliminar_usuario(id):
+    if session.get("rol") != "admin":
+        return "⛔ Sin permisos"
+
+    conexion = sqlite3.connect("calibraciones_4.db")
+    cursor = conexion.cursor()
+
+    cursor.execute("DELETE FROM usuarios WHERE id=?", (id,))
+    conexion.commit()
     conexion.close()
 
     return redirect("/admin")
