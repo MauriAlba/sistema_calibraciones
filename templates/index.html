@@ -9,7 +9,13 @@
         <button>🚪 Cerrar sesión</button>
     </a>
 
-    <p>👤 Usuario: {{ session.usuario }}</p>
+    {% if session.rol == "admin" %}
+    <a href="/admin">
+        <button>⚙️ Panel Admin</button>
+    </a>
+    {% endif %}
+
+    <p>👤 Usuario: {{ session.usuario }} | Rol: {{ session.rol }}</p>
 
 <h1>🔧 Sistema de Calibraciones</h1>
 

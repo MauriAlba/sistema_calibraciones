@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Panel Admin</title>
+</head>
+<body>
+
+<h1>⚙️ Panel de Administración</h1>
+
+<h2>Crear usuario</h2>
+
+<form method="POST" action="/crear_usuario">
+    <input type="text" name="usuario" placeholder="Usuario" required><br><br>
+    <input type="password" name="password" placeholder="Contraseña" required><br><br>
+
+    <select name="rol">
+        <option value="admin">Admin</option>
+        <option value="tecnico">Técnico</option>
+    </select><br><br>
+
+    <button type="submit">Crear usuario</button>
+</form>
+
+<br>
+<a href="/">⬅ Volver</a>
+
+</body>
+</html>
