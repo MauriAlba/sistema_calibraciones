@@ -270,20 +270,34 @@ def exportar():
         for col in range(1, 6):
             ws.cell(row=fila_excel, column=col).fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
 
+    # columnas = ["A", "B", "C", "D", "E"]
+
+    # for col in columnas:
+    #     ws.column_dimensions[col].width = 20
+
+    #     # archivo = "reporte_calibraciones.xlsx"
+    #     # wb.save(archivo)
+
+    #     # return send_file(archivo, as_attachment=True)
+    
+    # for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
+    #     for cell in row:
+    #         cell.alignment = Alignment(horizontal="center")
+            
+    # archivo = "reporte_calibraciones.xlsx"
+    # wb.save(archivo)
+
+    # return send_file(archivo, as_attachment=True)
+
     columnas = ["A", "B", "C", "D", "E"]
 
     for col in columnas:
         ws.column_dimensions[col].width = 20
 
-        # archivo = "reporte_calibraciones.xlsx"
-        # wb.save(archivo)
-
-        # return send_file(archivo, as_attachment=True)
-    
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
         for cell in row:
             cell.alignment = Alignment(horizontal="center")
-            
+
     archivo = "reporte_calibraciones.xlsx"
     wb.save(archivo)
 
